@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Title</title>
+
+    <link th:href="@{/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/bootstrapTable/bootstrap-table.min.css}" rel="stylesheet">
+
+    <script th:src="@{/jquery/jquery-2.1.0.min.js}"></script>
+    <script th:src="@{/layer/layer.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script th:src="@{/bootstrapTable/bootstrap-table.min.js}"></script>
+    <script th:src="@{/bootstrapTable/locale/bootstrap-table-zh-CN.min.js}"></script>
+</head>
+<body>
+<!-- 员工修改的模态框 -->
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">员工修改</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <%--<div class="form-group">
+                    <label class="col-sm-2 control-label">empName</label>
+                    <div class="col-sm-10">
+                        <p class="form-control-static" id="empName_update_static"></p>
+                    </div>
+                </div>--%>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">empName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="name" class="form-control" id="empName_update_static" placeholder="xxxxxx" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">email</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="email" class="form-control" id="email_update_input" placeholder="email@atguigu.com">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">gender</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender1_update_input" value=1 checked="checked"> 男
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender2_update_input" value=0> 女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">deptName</label>
+                        <div class="col-sm-4">
+                            <!-- 部门提交部门id即可 -->
+                            <select class="form-control" name="dId">
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_update_btn">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 员工添加的模态框 -->
+<div class="modal fade" id="userAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">用户添加</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">NickName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="name" class="form-control" id="name" placeholder="empName">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">UserName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="username" class="form-control" id="username" placeholder="email@atguigu.com">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="password" class="form-control" id="password" placeholder="email@atguigu.com">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_save_btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toolbar" class="btn-group">
+    <form class="form-inline">
+        <div class="form-group">
+            <label >NickName</label>
+            <input type="text" class="form-control" id="nickNameSearch" placeholder="xx">
+        </div>
+        <div class="form-group">
+            <label >UserName</label>
+            <input type="text" class="form-control" id="userNameSearch" placeholder="xx">
+        </div>
+        <button type="submit" id="queryBtn" class="btn btn-default">Search</button>
+    </form>
+<div>
+    <button type="button" class="btn btn-default" id="addUserBtn">
+        <i class="glyphicon glyphicon-plus"></i>
+    </button>
+    <button type="button" class="btn btn-default">
+        <i class="glyphicon glyphicon-trash"></i>
+    </button>
+</div>
+
+
+</div>
+<table id="table">
+</table>
+<script th:inline="javascript">
+    $(function () {
+
+        $("#queryBtn").click(function () {
+            $("#table").bootstrapTable('refresh');
+            return false;
+        })
+
+        var rurl =[[@{/user/getUsers}]];
+        $("#table").bootstrapTable({
+            url: rurl,//请求的URL
+            cache: false,//是否使用缓存
+//            search:true,//是否显示表格搜索
+            toolbar:"#toolbar",//工具栏
+            striped: true,//行间隔色
+            pagination: true,//分页
+            pageList: [1,2,3],//每页行数
+            pageSize:2,//每页的行数
+            pageNumber: 1,//初始化第一页，默认第一页
+            showToggle: true,//详细视图和列表视图的切换
+            sortable:true,//启用排序
+            showRefresh:true,//刷新
+            showColumns:true,//显示所有列
+            sortName:'id',//排序的列
+            sortOrder:'desc',//排序方式
+            sidePagination: "server",
+            queryParams: function (params) {
+                var temp = {
+                    pageSize: params.limit,
+                    pageNumber: (params.offset / params.limit) + 1,
+                    sortName: params.sort,
+                    nickNameSearch:$("#nickNameSearch").val(),
+                    userNameSearch:$("#userNameSearch").val(),
+                    sortOrder: params.order
+                };
+                return temp;
+            },
+            columns:[
+                {
+                    checkbox:true
+                },
+                {
+                    field:'name',
+                    title:'Nick Name',
+                    align:'center',
+                    valign:'middle',
+                    sortable:'true',
+                    visible:true
+                },
+                {
+                    field:'username',
+                    title:'User Name',
+                    align:'center',
+                    sortable:'true',
+                    valign:'middle'
+//                    visible:false
+                },
+                {
+                    field:'action',
+                    title:'Action',
+                    formatter:actionFormatter
+                }
+            ],
+            detailView:true,//显示父子表
+            //显示隐藏信息
+            onExpandRow: function (index, row, $detail) {
+                $detail.hide().html('&emsp;&emsp;&emsp;Password : '+row.password).fadeIn('slow')
+            },
+            onCollapseRow: function (index, row, $detail) {
+                $detail.clone().insertAfter($detail).fadeOut('slow', function () {
+                    $(this).remove()
+                })
+            },
+            onLoadSuccess: function(){  //加载成功时执行
+                console.info("加载成功");
+            },
+            onLoadError: function(){  //加载失败时执行
+                console.info("加载数据失败");
+            }
+        })
+
+        function actionFormatter(value, row, index) {
+            return [
+                '&nbsp;&nbsp;&nbsp;&nbsp;<a class="like" href="user/selectOne/'+row.id+'"title="Like">',
+                '<i class="glyphicon glyphicon-heart"></i>',
+                '</a>&nbsp;&nbsp;&nbsp;&nbsp;',
+                '<a class="edit ml10" href="user/edit/'+row.id+'"title="Edit">',
+                '<i class="glyphicon glyphicon-edit"></i>',
+                '</a>&nbsp;&nbsp;&nbsp;&nbsp;',
+                '<a class="remove ml10" href="user/deleteOne/'+row.id+'"title="Remove">',
+                '<i class="glyphicon glyphicon-remove"></i>',
+                '</a>'
+            ].join('');
+        }
+
+
+
+
+
+    })
+
+    //清空内容
+    function reset_form(ele){
+        $(ele)[0].reset();
+        //清空表单样式
+//        $(ele).find("*").removeClass("has-error has-success");
+//        $(ele).find(".help-block").text("");
+    }
+
+    //打开添加用户模态框
+    $("#addUserBtn").click(function(){
+//        alert("aaaa");
+        //清除表单数据（表单完整重置（表单的数据，表单的样式））
+        reset_form("#userAddModal form");
+        //s$("")[0].reset();
+        //发送ajax请求，查出部门信息，显示在下拉列表中
+
+//        getDepts("#empAddModal select");
+        //弹出模态框
+        $("#userAddModal").modal({
+            backdrop:"static"
+        });
+
+    });
+    //点击保存，保存员工。
+    $("#emp_save_btn").click(function(){
+//        alert($("#userAddModal form").serialize());
+        //2、发送ajax请求保存员工
+        var loadingIndex = null;
+        $.ajax({
+            url:[[@{/user/add}]],
+            type:"POST",
+            data:$("#userAddModal form").serialize(),
+            beforeSend : function(){
+                loadingIndex = layer.msg('处理中', {icon: 16});
+            },
+            success:function(result){
+                //alert(result.msg);
+                if(result.code == 100){
+                    //员工保存成功；
+                    //1、关闭模态框
+                    $("#userAddModal").modal('hide');
+                    //刷新页面
+                    location.reload(true);
+                }else{
+                    //显示失败信息
+                    //console.log(result);
+                    //有哪个字段的错误信息就显示哪个字段的；
+                    if (result.extend.errorFields.username) {
+                        layer.msg("用户名不能为空，请重新输入", {time:2000, icon:5, shift:6}, function(){});
+                    };
+                    if (result.extend.errorFields.password) {
+                        layer.msg("密码不能为空，请重新输入", {time:2000, icon:5, shift:6}, function(){});
+                    };
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
