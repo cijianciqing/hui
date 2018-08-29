@@ -18,51 +18,39 @@
 </head>
 <body>
 <!-- 员工修改的模态框 -->
-<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="userUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">员工修改</h4>
+                <h4 class="modal-title">用户修改</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
-                    <%--<div class="form-group">
-                    <label class="col-sm-2 control-label">empName</label>
-                    <div class="col-sm-10">
-                        <p class="form-control-static" id="empName_update_static"></p>
-                    </div>
-                </div>--%>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">empName</label>
+                        <label class="col-sm-2 control-label">Edit</label>
                         <div class="col-sm-10">
-                            <input type="text" name="name" class="form-control" id="empName_update_static" placeholder="xxxxxx" readonly>
+                            <input type="hidden" name="id" class="form-control" id="id_update_input">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">email</label>
+                        <label class="col-sm-2 control-label">NickName</label>
                         <div class="col-sm-10">
-                            <input type="text" name="email" class="form-control" id="email_update_input" placeholder="email@atguigu.com">
+                            <input type="text" name="name" class="form-control" id="name_update_static" placeholder="xx" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">UserName</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="username" class="form-control" id="username_update_input" placeholder="xxx">
                             <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">gender</label>
+                        <label class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-10">
-                            <label class="radio-inline">
-                                <input type="radio" name="gender" id="gender1_update_input" value=1 checked="checked"> 男
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" name="gender" id="gender2_update_input" value=0> 女
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">deptName</label>
-                        <div class="col-sm-4">
-                            <!-- 部门提交部门id即可 -->
-                            <select class="form-control" name="dId">
-                            </select>
+                            <input type="text" name="password" class="form-control" id="password_update_input" placeholder="xxxx">
+                            <span class="help-block"></span>
                         </div>
                     </div>
                 </form>
@@ -89,21 +77,21 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">NickName</label>
                         <div class="col-sm-10">
-                            <input type="text" name="name" class="form-control" id="name" placeholder="empName">
+                            <input type="text" name="name" class="form-control" id="name" placeholder="xx">
                             <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">UserName</label>
                         <div class="col-sm-10">
-                            <input type="text" name="username" class="form-control" id="username" placeholder="email@atguigu.com">
+                            <input type="text" name="username" class="form-control" id="username" placeholder="xxx">
                             <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-10">
-                            <input type="text" name="password" class="form-control" id="password" placeholder="email@atguigu.com">
+                            <input type="text" name="password" class="form-control" id="password" placeholder="xxxx">
                             <span class="help-block"></span>
                         </div>
                     </div>
@@ -133,7 +121,7 @@
     <button type="button" class="btn btn-default" id="addUserBtn">
         <i class="glyphicon glyphicon-plus"></i>
     </button>
-    <button type="button" class="btn btn-default">
+    <button type="button" class="btn btn-default" id="user_deleteAll_btn">
         <i class="glyphicon glyphicon-trash"></i>
     </button>
 </div>
@@ -143,18 +131,14 @@
 <table id="table">
 </table>
 <script th:inline="javascript">
+
+    //生成BootStrapTable
     $(function () {
-
-        $("#queryBtn").click(function () {
-            $("#table").bootstrapTable('refresh');
-            return false;
-        })
-
         var rurl =[[@{/user/getUsers}]];
         $("#table").bootstrapTable({
             url: rurl,//请求的URL
             cache: false,//是否使用缓存
-//            search:true,//是否显示表格搜索
+          //search:true,//是否显示表格搜索
             toolbar:"#toolbar",//工具栏
             striped: true,//行间隔色
             pagination: true,//分页
@@ -189,7 +173,16 @@
                     align:'center',
                     valign:'middle',
                     sortable:'true',
+                    switchable:false,//右上角的column不显示此列
                     visible:true
+                },
+                {
+                    field:'id',
+                    title:'ID',
+                    align:'center',
+                    valign:'middle',
+                    sortable:'true',
+                    visible:false
                 },
                 {
                     field:'username',
@@ -223,24 +216,36 @@
             }
         })
 
+        var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn")
+            .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("编辑");
+        //为编辑按钮添加一个自定义的属性，来表示当前员工id
+        editBtn.attr("edit-id", row.id);
+        var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn")
+            .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("删除");
+        //为删除按钮添加一个自定义的属性来表示当前删除的员工id
+        delBtn.attr("del-id", row.id);
+        var btnTd = editBtn.append(" ").append(delBtn);
         function actionFormatter(value, row, index) {
             return [
                 '&nbsp;&nbsp;&nbsp;&nbsp;<a class="like" href="user/selectOne/'+row.id+'"title="Like">',
                 '<i class="glyphicon glyphicon-heart"></i>',
                 '</a>&nbsp;&nbsp;&nbsp;&nbsp;',
-                '<a class="edit ml10" href="user/edit/'+row.id+'"title="Edit">',
+                '<a class="edit ml10 edit_btn"  edit-id="'+row.id+'"title="Edit">',
                 '<i class="glyphicon glyphicon-edit"></i>',
                 '</a>&nbsp;&nbsp;&nbsp;&nbsp;',
-                '<a class="remove ml10" href="user/deleteOne/'+row.id+'"title="Remove">',
+                '<a class="remove ml10 delete_btn" del-id="'+row.id+'"title="Remove">',
                 '<i class="glyphicon glyphicon-remove"></i>',
                 '</a>'
-            ].join('');
+                ].join('');
         }
 
+    })
 
 
-
-
+    //刷新BootstrapTable
+    $("#queryBtn").click(function () {
+        $("#table").bootstrapTable('refresh');
+        return false;
     })
 
     //清空内容
@@ -266,6 +271,7 @@
         });
 
     });
+
     //点击保存，保存员工。
     $("#emp_save_btn").click(function(){
 //        alert($("#userAddModal form").serialize());
@@ -291,6 +297,72 @@
                     //console.log(result);
                     //有哪个字段的错误信息就显示哪个字段的；
                     if (result.extend.errorFields.username) {
+                        layer.msg("用户名： "+result.extend.errorFields.username, {time:2000, icon:5, shift:6}, function(){});
+                    };
+                    if (result.extend.errorFields.password) {
+                        layer.msg("密码： "+result.extend.errorFields.password, {time:2000, icon:5, shift:6}, function(){});
+                    };
+                }
+            }
+        });
+    });
+
+    //弹出编辑用户模态框
+    $(document).on("click",".edit_btn",function(){
+//        alert("edit");
+        reset_form("#userUpdateModal form");
+        //1、查出部门信息，并显示部门列表
+//        getDepts("#empUpdateModal select");
+        //2、查出员工信息，显示员工信息
+        getEmp($(this).attr("edit-id"));
+
+        //3、把员工的id传递给模态框的更新按钮
+//        $("#emp_update_btn").attr("edit-id",$(this).attr("edit-id"));
+        $("#userUpdateModal").modal({
+            backdrop:"static"
+        });
+    });
+
+    //更新user前，查询user信息
+    function getEmp(id){
+        $.ajax({
+            url:[[@{/user/edit/}]]+id,
+            type:"GET",
+            success:function(result){
+                //console.log(result);
+                var userData = result.extend.user;
+//                $("#empName_update_static").text(userData.name);
+                $("#id_update_input").val(userData.id);
+                $("#name_update_static").val(userData.name);
+                $("#username_update_input").val(userData.username);
+                $("#password_update_input").val(userData.password);
+            }
+        });
+    }
+
+    //点击更新，更新员工信息
+    $("#emp_update_btn").click(function(){
+
+        var loadingIndex = null;
+        $.ajax({
+            url:[[@{/user/edit}]],
+            type:"put",
+            data:$("#userUpdateModal form").serialize(),
+            beforeSend : function(){
+            loadingIndex = layer.msg('处理中', {icon: 16});
+        },
+            success:function(result){
+                if(result.code == 100){
+                    //员工保存成功；
+                    //1、关闭模态框
+                    $("#userUpdateModal").modal('hide');
+                    //刷新页面
+                    location.reload(true);
+                }else{
+                    //显示失败信息
+                    //console.log(result);
+                    //有哪个字段的错误信息就显示哪个字段的；
+                    if (result.extend.errorFields.username) {
                         layer.msg("用户名不能为空，请重新输入", {time:2000, icon:5, shift:6}, function(){});
                     };
                     if (result.extend.errorFields.password) {
@@ -300,6 +372,68 @@
             }
         });
     });
+
+
+    //单个删除
+    $(document).on("click",".delete_btn",function(){
+        //1、弹出是否确认删除对话框
+        var empName = $(this).parents("tr").find("td:eq(2)").text();
+        var empId = $(this).attr("del-id");
+        //alert($(this).parents("tr").find("td:eq(1)").text());
+        if(confirm("确认删除【"+empName+"】吗？")){
+            //确认，发送ajax请求删除即可
+            var loadingIndex = null;
+            $.ajax({
+                url:[[@{/user/delete/}]]+empId,
+                type:"DELETE",
+                beforeSend : function(){
+                loadingIndex = layer.msg('处理中', {icon: 16});
+                },
+                success:function(result){
+                    alert(result.msg);
+                    location.reload(true);
+                }
+            });
+        }
+    });
+
+    $("#user_deleteAll_btn").click(function () {
+        var rows = $("#table").bootstrapTable('getSelections');
+        if (rows.length== 0) {
+            alert("请先选择要删除的记录!");
+            return;
+        }
+        var empNames = "";
+        var del_idstr = "";
+        for (var i = 0; i < rows.length; i++) {
+            del_idstr += rows[i]['id'] + "-";
+            empNames += rows[i]['name'] + ",";
+        }
+        //去除empNames多余的,
+        empNames = empNames.substring(0, empNames.length-1);
+        //去除删除的id多余的-
+        del_idstr = del_idstr.substring(0, del_idstr.length-1);
+        if(confirm("确认删除【"+empNames+"】吗？")){
+            //发送ajax请求删除
+            var loadingIndex = null;
+            $.ajax({
+                url:[[@{/user/delete/}]]+del_idstr,
+                type:"DELETE",
+                    beforeSend : function(){
+                    loadingIndex = layer.msg('处理中', {icon: 16});
+                },
+                    success:function(result){
+                    alert(result.msg);
+                    location.reload(true);
+                }
+            });
+        }
+    })
+
+
+
+
+
 </script>
 </body>
 </html>

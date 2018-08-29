@@ -10,12 +10,9 @@ import jsjzx.wlyw.huitest.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.jws.soap.SOAPBinding;
 import javax.validation.Valid;
@@ -54,7 +51,7 @@ public class UserController {
     * 根据前端要求进行分页查询
     * */
     @ResponseBody
-    @GetMapping(value = "getUsers")
+    @GetMapping(value = "/getUsers")
     public Map<String, Object> getUsers(SearchInfo searchInfo) {
         //输出当前的查询信息
         System.out.println("当前的查询信息： " + searchInfo);
@@ -93,7 +90,7 @@ public class UserController {
 
     @ResponseBody
     @PostMapping(value = "/add")
-    public Msg uploadAsset(@Valid User user, BindingResult result) {
+    public Msg addUser(@Valid User user, BindingResult result) {
         //将提交的参数转换为Asset
         //保存到数据库
         if (result.hasErrors()) {
@@ -111,7 +108,53 @@ public class UserController {
         }
     }
 
+    //更新用户信息之前，查询用户信息
+    @ResponseBody
+    @GetMapping(value = "/edit/{id}")
+    public Msg getOne(@PathVariable("id") Integer id){
+        User user = userService.selectById(id);
+        return Msg.success().add("user",user);
+    }
 
+    //更新用户
+    @ResponseBody
+    @PutMapping(value = "/edit")
+    public Msg updateUser(@Valid User user, BindingResult result) {
+        //将提交的参数转换为Asset
+        //保存到数据库
+        if (result.hasErrors()) {
+            Map<String, Object> map = new HashMap<>();
+            List<FieldError> errors = result.getFieldErrors();
+            for (FieldError fieldError : errors) {
+                System.out.println("错误的字段名：" + fieldError.getField());
+                System.out.println("错误信息：" + fieldError.getDefaultMessage());
+                map.put(fieldError.getField(), fieldError.getDefaultMessage());
+            }
+            return Msg.fail().add("errorFields", map);
+        } else {
+            userService.updateById(user);
+            return Msg.success();
+        }
+    }
 
+    //删除用户
+    @ResponseBody
+    @RequestMapping(value="/delete/{ids}",method=RequestMethod.DELETE)
+    public Msg delUser(@PathVariable("ids")String ids){
+        //批量删除
+        if(ids.contains("-")){
+            List<Integer> del_ids = new ArrayList<>();
+            String[] str_ids = ids.split("-");
+            //组装id的集合
+            for (String string : str_ids) {
+                del_ids.add(Integer.parseInt(string));
+            }
+            userService.deleteBatchIds(del_ids);
+        }else{
+            Integer id = Integer.parseInt(ids);
+            userService.deleteById(id);
+        }
+        return Msg.success();
+    }
 }
 

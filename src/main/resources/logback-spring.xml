@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+scan锛�褰�姝ゅ��ц�剧疆涓�true�讹���缃���浠跺��������瑰��锛�灏�浼�琚����板��杞斤�榛�璁ゅ�间负true��
+scanPeriod锛�璁剧疆��娴���缃���浠舵������淇��圭���堕�撮�撮��锛�濡���娌℃��缁��烘�堕�村��浣�锛�榛�璁ゅ��浣���姣�绉�褰�scan涓�true�讹�姝ゅ��х������榛�璁ょ���堕�撮�撮��涓�1������
+debug锛�褰�姝ゅ��ц�剧疆涓�true�讹�灏����板��logback���ㄦ�ュ�淇℃��锛�瀹��舵�ョ��logback杩�琛��舵����榛�璁ゅ�间负false��
+-->
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
+    <!-- 瀹�涔��ュ����圭��褰� -->
+    <property name="LOG_HOME" value="/app/log" />
+    <!-- 瀹�涔��ュ���浠跺��绉� -->
+    <property name="appName" value="atguigu-springboot"></property>
+    <!-- ch.qos.logback.core.ConsoleAppender 琛ㄧず�у�跺�拌��� -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <!--
+        �ュ�杈��烘�煎�锛�
+			%d琛ㄧず�ユ���堕�达�
+			%thread琛ㄧず绾跨���锛�
+			%-5level锛�绾у��浠�宸��剧ず5涓�瀛�绗�瀹藉害
+			%logger{50} 琛ㄧずlogger��瀛�����50涓�瀛�绗�锛��������у�ョ�瑰���层�� 
+			%msg锛��ュ�娑���锛�
+			%n���㈣�绗�
+        -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <springProfile name="dev">
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ----> [%thread] ---> %-5level %logger{50} - %msg%n</pattern>
+            </springProfile>
+            <springProfile name="!dev">
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ==== [%thread] ==== %-5level %logger{50} - %msg%n</pattern>
+            </springProfile>
+        </layout>
+    </appender>
+
+    <!-- 婊��ㄨ�板���浠讹���灏��ュ�璁板��版��瀹���浠讹�褰�绗�����涓��′欢�讹�灏��ュ�璁板��板�朵���浠� -->  
+    <appender name="appLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- ��瀹��ュ���浠剁����绉� -->
+        <file>${LOG_HOME}/${appName}.log</file>
+        <!--
+        褰�����婊��ㄦ�讹��冲�� RollingFileAppender ��琛�涓猴�娑�����浠剁Щ�ㄥ�����藉��
+        TimeBasedRollingPolicy锛� ��甯哥�ㄧ��婊��ㄧ���ワ�瀹��规���堕�存�ュ�跺��婊��ㄧ���ワ��㈣�璐ｆ��ㄤ�璐�璐ｅ�哄��婊��ㄣ��
+        -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--
+            婊��ㄦ�朵骇������浠剁��瀛��句�缃�����浠跺��绉� %d{yyyy-MM-dd}锛���澶╄�琛��ュ�婊��� 
+            %i锛�褰���浠跺ぇ灏�瓒�杩�maxFileSize�讹�����i杩�琛���浠舵���
+            -->
+            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 
+            �������癸��у�朵�����褰�妗ｆ��浠剁����澶ф�伴��锛�瓒��烘�伴��灏卞���ゆ�ф��浠躲����璁捐�剧疆姣�澶╂���锛�
+            涓�maxHistory��365锛�����淇�瀛���杩�365澶╃����浠讹����や������ф��浠躲��娉ㄦ��锛����ゆ�ф��浠舵��锛�
+            �ｄ�涓轰�褰�妗ｈ����寤虹����褰�涔�浼�琚����ゃ��
+            -->
+            <MaxHistory>365</MaxHistory>
+            <!-- 
+            褰��ュ���浠惰�杩�maxFileSize��瀹���澶у���锛��规��涓��㈡���扮��%i杩�琛��ュ���浠舵��� 娉ㄦ��姝ゅ���缃�SizeBasedTriggeringPolicy����娉�瀹��版����浠跺ぇ灏�杩�琛�婊��ㄧ��锛�蹇�椤婚��缃�timeBasedFileNamingAndTriggeringPolicy
+            -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- �ュ�杈��烘�煎�锛� -->     
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [ %thread ] - [ %-5level ] [ %logger{50} : %line ] - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 
+		logger涓昏��ㄤ�瀛��炬�ュ�瀵硅薄锛�涔���浠ュ��涔��ュ�绫诲����绾у��
+		name锛�琛ㄧず�归����logger绫诲����缂�锛�涔�灏辨�����������ㄥ��
+		level锛�瑕�璁板����ュ�绾у��锛����� TRACE < DEBUG < INFO < WARN < ERROR
+		additivity锛�浣��ㄥ�ㄤ�children-logger����浣跨�� rootLogger��缃���appender杩�琛�杈��猴�
+		false锛�琛ㄧず���ㄥ���logger��appender-ref锛�true锛�
+		琛ㄧず褰���logger��appender-ref��rootLogger��appender-ref�芥����
+    -->
+    <!-- hibernate logger -->
+    <logger name="jsjzx.wlyw.huitest" level="debug" />
+    <!-- Spring framework logger -->
+    <!--<logger name="org.springframework" level="debug" additivity="false"></logger>-->
+
+    <logger name="org.springframework.web" level="debug" additivity="false"></logger>
+
+
+    <!-- 
+    root涓�logger���跺���崇郴锛�娌℃���瑰��瀹�涔���榛�璁や负root锛�浠讳�涓�涓�绫诲��浼���涓�涓�logger瀵瑰�锛�
+    瑕�涔���瀹�涔���logger锛�瑕�涔���root锛��ゆ�����抽���ㄤ��惧�拌�涓�logger锛��跺���ゆ��杩�涓�logger��appender��level�� 
+    -->
+    <root level="info">
+        <appender-ref ref="stdout" />
+        <appender-ref ref="appLogAppender" />
+    </root>
+</configuration> 
